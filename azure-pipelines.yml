@@ -19,3 +19,28 @@ steps:
     npm install
     npm run build
   displayName: 'npm install and build'
+
+#Publicar archivos como Zip para despliegue 
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+    replaceExistingArchive: true
+  displayName: 'Crear paquete ZIP'
+
+#Publicar papeline Artifact
+- task: PublishPipelineArtifact@1
+  inputs:
+    artifactName: 'nodejs-app'
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+  displayName: 'Publish pipeline artifact'
+
+#Desplegar en Azure Web App
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'connection2960'  
+    appName: 'my-web'          
+    package: '$(Build.ArtifactStagingDirectory)/app.zip' 
+  displayName: 'Desplegar en Azure Web App'
