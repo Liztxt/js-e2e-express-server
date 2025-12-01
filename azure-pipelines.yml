@@ -43,4 +43,5 @@ steps:
     azureSubscription: 'connection2960'  
     appName: 'my-web'          
     package: '$(Build.ArtifactStagingDirectory)/app.zip' 
+    runtimeStack: 'NODE|20-lts'
   displayName: 'Desplegar en Azure Web App'
