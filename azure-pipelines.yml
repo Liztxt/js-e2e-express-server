@@ -20,10 +20,20 @@ steps:
     npm run build
   displayName: 'npm install and build'
 
-#Publicar archivos como Zip para despliegue 
+#Crear carpeta de deploy solo con lo necesario
+- script:
+    mkdir $(Build.ArtifactStagingDirectory)/deploy
+    xcopy src $(Build.ArtifactStagingDirectory)\deploy\src /E /I /Y
+    copy package.json $(Build.ArtifactStagingDirectory)\deploy\
+    copy package-lock.json $(Build.ArtifactStagingDirectory)\deploy\
+    cd $(Build.ArtifactStagingDirectory)\deploy
+    npm install --production
+  displayName: 'Preparar archivos para deploy'
+
+#Empaquetar solo la carpeta deploy
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/deploy'
     includeRootFolder: false
     archiveType: 'zip'
     archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
@@ -43,5 +53,6 @@ steps:
     azureSubscription: 'connection2960'  
     appName: 'my-web'          
     package: '$(Build.ArtifactStagingDirectory)/app.zip' 
+    deploymentMethod: 'zipDeploy'
     runtimeStack: 'NODE|20-lts'
   displayName: 'Desplegar en Azure Web App'
