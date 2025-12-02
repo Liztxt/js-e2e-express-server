@@ -20,15 +20,22 @@ steps:
     npm run build
   displayName: 'npm install and build'
 
-#Crear carpeta de deploy solo con lo necesario
-- script:
-    mkdir $(Build.ArtifactStagingDirectory)/deploy
-    xcopy src $(Build.ArtifactStagingDirectory)\deploy\src /E /I /Y
-    copy package.json $(Build.ArtifactStagingDirectory)\deploy\
-    copy package-lock.json $(Build.ArtifactStagingDirectory)\deploy\
-    cd $(Build.ArtifactStagingDirectory)\deploy
+#Copiar archivos necesarios
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      src/**
+      package.json
+      package-lock.json
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/deploy'
+  displayName: 'Copiar archivos para deploy'
+
+#Instalar dependencias de produccion
+- script: |
+    cd $(Build.ArtifactStagingDirectory)/deploy
     npm install --production
-  displayName: 'Preparar archivos para deploy'
+  displayName: 'Instalar dependencias de producción'
 
 #Empaquetar solo la carpeta deploy
 - task: ArchiveFiles@2
